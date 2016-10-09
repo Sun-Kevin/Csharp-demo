@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CsharpDemo
 {
+    [Serializable]
     public class Student : ICloneable
     {
         //C#6新特性，快速属性赋默认值

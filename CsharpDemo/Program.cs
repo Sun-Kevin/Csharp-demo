@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using CsharpDemo;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data;
 //using IronPython.Hosting;
 //using IronPython.Runtime;
 //using Microsoft.Scripting;
@@ -236,13 +237,66 @@ namespace CsharpDemo
             //Console.WriteLine($"id={stu.Id},name={stu.Name},sex={stu.Sex}");
             //stu = null;
             //GC.Collect();
-            
 
+            //audio display
+            //MediaElement mediaElement = new MediaElement();
+            //var synth = new Windows.Media.SpeechSynthesis.SpeechSynthesizer();
+            //Windows.Media.SpeechSynthesis.SpeechSynthesisStream stream = await synth.SynthesizeTextToStreamAsync("Hello, World!");
+            //mediaElement.SetSource(stream, stream.ContentType);
+            //mediaElement.Play();
+
+            #region return multiple results with one connection to database
+            //var conn = System.Configuration.ConfigurationManager.ConnectionStrings["myfang_w"].ConnectionString;
+            //var sql = @"select top 1* from myselect_0;
+            //            select top 1* from myselect_1";
+            //using (var c = new System.Data.SqlClient.SqlConnection(conn))
+            //{
+            //    using (System.Data.SqlClient.SqlCommand sc = c.CreateCommand())
+            //    {
+            //        sc.CommandText = sql;
+            //        sc.Connection = c;
+            //        c.Open();
+            //        var r = sc.ExecuteReader();
+            //        do
+            //        {
+            //            while (r.Read())
+            //                Console.WriteLine(r.GetInt32(0));
+            //        }
+            //        while (r.NextResult());
+            //    }
+            //}
+
+            //soufun framework Fill() method fill a DataSet contains multiple results.
+            //DataSet ds = new System.Data.DataSet("ds");
+            //SoufunLab.Framework.Data.SlDatabase.Fill(conn, sql, ds);
+            //foreach (DataTable t in ds.Tables)
+            //{
+            //    var n = t.AsEnumerable().Select(r => {
+            //        Console.WriteLine(r[1]);
+            //        return new
+            //        {
+            //            a = r[0],
+            //            b = r[1],
+            //            c = r[2]
+            //        };
+            //    });
+            //    foreach (var r in n)
+            //    {
+            //        Console.Write($"{r.a}\t{r.b}\t{r.c}");
+            //    }
+            //    Console.WriteLine();
+            //}
+            #endregion
+
+            var s = "sun,kai";
+            var sarr = s.Split(',');
+            Console.WriteLine(string.Join("-", sarr));
+            Console.WriteLine(sarr.Aggregate((a, b) => a + "_" + b));
 
             #endregion
             Console.ReadKey(true);
         }
-
+        #region
         static void fun(dynamic s)
         {
             Console.WriteLine(nameof(s));
@@ -303,7 +357,7 @@ namespace CsharpDemo
         {
             s = "ref";
         }
-        void SecondLarge(params int[] array)
+        static void SecondLarge(params int[] array)
         {
             int index = 0;
 
@@ -331,7 +385,147 @@ namespace CsharpDemo
             }
             Console.Write(array[index]);
         }
+        #endregion
+
+        #region Problem A-奇偶求和
+        static void AInput()
+        {
+            Console.Write("输入组数:");
+            var c = int.Parse(Console.ReadLine());
+            //List<int[]> arrs = new List<int[]>();
+            var arrs = new int[c][];
+            for (int i = 0; i < c; i++)
+            {
+                Console.Write("输入个数:");
+                var n = int.Parse(Console.ReadLine());
+                Console.Write("输入数组:");
+                var arr = Console.ReadLine();
+                arrs[i] = arr.Split(' ').Select(o => int.Parse(o)).ToArray();
+            }
+            foreach (var i in arrs)
+            {
+                var os = OddSum(i);
+                var es = EvenSum(i);
+                Console.WriteLine($"{os} {es}");
+            }
+        }
+        static int OddSum(int[] arr)
+        {
+            int sum = 0;
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (arr[i] % 2 == 1)
+                    sum += arr[i];
+            }
+            return sum;
+        }
+        static int EvenSum(int[] arr)
+        {
+            int sum = 0;
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (arr[i] % 2 == 0)
+                    sum += arr[i];
+            }
+            return sum;
+        }
+        #endregion
+
+        #region Problem B 最大等差数列长度
+        static void BInput()
+        { }
+        static int MaxLen(params int[] arr)
+        {
+            int p = 1, maxLen = 2, len = 2;
+            while (arr.Length - 1 >= p + 1)
+            {
+                if (arr[p] - arr[p - 1] != arr[p + 1] - arr[p])
+                {
+                    if (maxLen < len)
+                        maxLen = len;
+                    len = 2;
+                    p++;
+                    continue;
+                }
+                len++;
+                p++;
+            }
+            return maxLen > len ? maxLen : len;
+        }
+        #endregion
+
+        #region Problem D-数据库检索
+        static void DBSearch()
+        {
+            Console.Write("输入组数:");
+            var t = int.Parse(Console.ReadLine());
+            for (int i = 0; i < t; i++)
+            {
+                Console.Write("数据与查询条件：");
+                var nm = Console.ReadLine().Split(' ').Select(o => int.Parse(o)).ToArray();
+                var n = nm[0];
+                var m = nm[1];
+                Console.WriteLine("输入数据：");
+                List<dynamic> data = new List<dynamic>();
+                for (int j = 0; j < n; j++)
+                {
+                    var input = Console.ReadLine().Split(' ');
+                    data.Add(new
+                    {
+                        name = input[0],
+                        sex = input[1],
+                        birth = input[2].Split('/')
+                    });
+                }
+                Console.WriteLine("输入条件:");
+                List<Dictionary<string, string>> cond = new List<Dictionary<string, string>>();
+                for (int k = 0; k < m; k++)
+                {
+                    var input = Console.ReadLine().Split(' ');
+                    var dic = new Dictionary<string, string>();
+                    foreach (var c in input)
+                    {
+                        var w = c.Split('=');
+                        var key = w[0].ToLower();
+                        var val = w[1].Trim('\'').ToLower();
+                        dic.Add(key, val);
+                    }
+                    cond.Add(dic);
+                }
+                Console.WriteLine("样例输出：");
+                cond.ForEach(d =>
+                {
+                    bool exist = false;
+                    data.ForEach(da =>
+                    {
+                        var name = string.Empty;
+                        var sex = string.Empty;
+                        string[] birth = null;
+                        if (d.ContainsKey("name"))
+                            name = d["name"];
+                        if (d.ContainsKey("sex"))
+                            sex = d["sex"];
+                        if (d.ContainsKey("birth"))
+                            birth = d["birth"].Split('/');
+                        if ((name == "" || name == da.name) &&
+                            (sex == "" || sex == da.sex) &&
+                            (birth == null ||
+                            (birth[0] == "*" || birth[0] == da.birth[0]) &&
+                            (birth[1] == "*" || birth[1] == da.birth[1]) &&
+                            (birth[2] == "*" || birth[2] == da.birth[2])))
+                        {
+                            Console.WriteLine(da.name);
+                            exist = true;
+                        }
+                    });
+                    if (!exist)
+                        Console.WriteLine("null");
+                });
+            }
+        }
+        #endregion
     }
+    #region
     class Discount
     {
 
@@ -404,4 +598,5 @@ namespace CsharpDemo
     {
         static void Fun2() { Func1(); }
     }
+    #endregion
 }
